@@ -171,12 +171,16 @@ open class LineChartRenderer: LineRadarRenderer
             drawCubicFill(context: context, dataSet: dataSet, spline: fillPath!, matrix: valueToPixelMatrix, bounds: _xBounds)
         }
         
-        context.beginPath()
-        context.addPath(cubicPath)
-        context.setStrokeColor(drawingColor.cgColor)
-        context.strokePath()
-        
-        context.restoreGState()
+        if dataSet.gradientXPositions != nil || dataSet.gradientYPositions != nil {
+            drawGradientLine(context: context, dataSet: dataSet, spline: cubicPath, matrix: valueToPixelMatrix)
+        } else {
+            context.beginPath()
+            context.addPath(cubicPath)
+            context.setStrokeColor(drawingColor.cgColor)
+            context.strokePath()
+
+            context.restoreGState()
+        }
     }
     
     @objc open func drawHorizontalBezier(context: CGContext, dataSet: ILineChartDataSet)
@@ -788,5 +792,94 @@ open class LineChartRenderer: LineRadarRenderer
         modifier(element)
 
         return element
+    }
+    
+    func drawGradientLine(context: CGContext, dataSet: ILineChartDataSet, spline: CGPath, matrix: CGAffineTransform)
+    {
+        // `insetBy` is applied since bounding box
+        // doesn't take into account line width
+        // so that peaks are trimmed since
+        // gradient start and gradient end calculated wrong
+        let boundingBox = spline.boundingBox
+            .insetBy(dx: -dataSet.lineWidth / 2, dy: -dataSet.lineWidth / 2)
+
+        guard !boundingBox.isNull, !boundingBox.isInfinite, !boundingBox.isEmpty else {
+            return
+        }
+
+        let baseColorSpace = CGColorSpaceCreateDeviceRGB()
+
+        var gradient: CGGradient?
+        var gradientStart = CGPoint(x: 0, y: boundingBox.minY)
+        var gradientEnd = CGPoint(x: 0, y: boundingBox.maxY)
+        if let gradientLocations: [CGFloat] = dataSet.gradientXPositions {
+            gradientStart = CGPoint(x: boundingBox.minX, y: 0)
+            gradientEnd = CGPoint(x: boundingBox.maxX, y: 0)
+            let gradientColorComponents: [CGFloat] = dataSet.colors
+                .reduce(into: []) { (components, color) in
+                    guard let (r, g, b, a) = color.nsuirgba else {
+                        return
+                    }
+                    components += [r, g, b, a]
+            }
+            gradient = CGGradient(
+            colorSpace: baseColorSpace,
+            colorComponents: gradientColorComponents,
+            locations: gradientLocations,
+            count: gradientLocations.count)
+        } else if let gradientPositions: [CGFloat] = dataSet.gradientYPositions {
+            let gradientColorComponents: [CGFloat] = dataSet.colors
+                .reversed()
+                .reduce(into: []) { (components, color) in
+                    guard let (r, g, b, a) = color.nsuirgba else {
+                        return
+                    }
+                    components += [r, g, b, a]
+            }
+            let gradientLocations: [CGFloat] = gradientPositions.reversed()
+                .map { (position) in
+                    let location = CGPoint(x: boundingBox.minX, y: position)
+                        .applying(matrix)
+                    let normalizedLocation = (location.y - boundingBox.minY)
+                        / (boundingBox.maxY - boundingBox.minY)
+                    return normalizedLocation.clamped(to: 0...1)
+            }
+            
+            gradient = CGGradient(
+            colorSpace: baseColorSpace,
+            colorComponents: gradientColorComponents,
+            locations: gradientLocations,
+            count: gradientLocations.count)
+        }
+
+        guard let g = gradient else {
+            return
+        }
+        
+        context.saveGState()
+        defer { context.restoreGState() }
+
+        context.beginPath()
+        context.addPath(spline)
+        context.replacePathWithStrokedPath()
+        context.clip()
+        context.drawLinearGradient(g, start: gradientStart, end: gradientEnd, options: [])
+    }
+
+}
+
+extension NSUIColor
+{
+    var nsuirgba: (red: CGFloat, green: CGFloat, blue: CGFloat, alpha: CGFloat)? {
+        var red: CGFloat = 0
+        var green: CGFloat = 0
+        var blue: CGFloat = 0
+        var alpha: CGFloat = 0
+
+        guard getRed(&red, green: &green, blue: &blue, alpha: &alpha) else {
+            return nil
+        }
+
+        return (red: red, green: green, blue: blue, alpha: alpha)
     }
 }

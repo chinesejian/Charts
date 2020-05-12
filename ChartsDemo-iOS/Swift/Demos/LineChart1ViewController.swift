@@ -118,17 +118,19 @@ class LineChart1ViewController: DemoBaseViewController {
         let set1 = LineChartDataSet(entries: values, label: "DataSet 1")
         set1.drawIconsEnabled = false
         
-        set1.lineDashLengths = [5, 2.5]
-        set1.highlightLineDashLengths = [5, 2.5]
-        set1.setColor(.black)
+//        set1.lineDashLengths = [5, 2.5]
+//        set1.highlightLineDashLengths = [5, 2.5]
+//        set1.setColor(.black)
         set1.setCircleColor(.black)
-        set1.lineWidth = 1
+        set1.lineWidth = 3
         set1.circleRadius = 3
         set1.drawCircleHoleEnabled = false
         set1.valueFont = .systemFont(ofSize: 9)
         set1.formLineDashLengths = [5, 2.5]
         set1.formLineWidth = 1
         set1.formSize = 15
+        set1.colors = [UIColor.blue, UIColor.green, UIColor.red]
+        set1.gradientXPositions = [0, 0.5, 1]
         
         let gradientColors = [ChartColorTemplates.colorFromString("#00ff0000").cgColor,
                               ChartColorTemplates.colorFromString("#ffff0000").cgColor]

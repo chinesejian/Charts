@@ -15,6 +15,10 @@ import CoreGraphics
 
 open class LineChartDataSet: LineRadarChartDataSet, ILineChartDataSet
 {
+    public var gradientXPositions: [CGFloat]?
+    
+    public var gradientYPositions: [CGFloat]?
+    
     @objc(LineChartMode)
     public enum Mode: Int
     {
