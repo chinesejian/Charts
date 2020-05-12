@@ -178,9 +178,8 @@ open class LineChartRenderer: LineRadarRenderer
             context.addPath(cubicPath)
             context.setStrokeColor(drawingColor.cgColor)
             context.strokePath()
-
-            context.restoreGState()
         }
+        context.restoreGState()
     }
     
     @objc open func drawHorizontalBezier(context: CGContext, dataSet: ILineChartDataSet)
