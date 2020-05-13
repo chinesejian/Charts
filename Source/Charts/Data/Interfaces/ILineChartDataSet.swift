@@ -80,4 +80,6 @@ public protocol ILineChartDataSet: ILineRadarChartDataSet
     
     var gradientXPositions: [CGFloat]? { get set }
     var gradientYPositions: [CGFloat]? { get set }
+    var horizontalHighlightIndicatorStopAtPoint: Bool { get set }
+    var verticalHighlightIndicatorStopAtPoint: Bool { get set }
 }

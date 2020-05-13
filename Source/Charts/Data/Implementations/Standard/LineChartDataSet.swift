@@ -16,8 +16,9 @@ import CoreGraphics
 open class LineChartDataSet: LineRadarChartDataSet, ILineChartDataSet
 {
     public var gradientXPositions: [CGFloat]?
-    
     public var gradientYPositions: [CGFloat]?
+    public var horizontalHighlightIndicatorStopAtPoint: Bool = false
+    public var verticalHighlightIndicatorStopAtPoint: Bool = false
     
     @objc(LineChartMode)
     public enum Mode: Int

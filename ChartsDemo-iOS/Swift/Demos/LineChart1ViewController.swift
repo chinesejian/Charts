@@ -131,6 +131,7 @@ class LineChart1ViewController: DemoBaseViewController {
         set1.formSize = 15
         set1.colors = [UIColor.blue, UIColor.green, UIColor.red]
         set1.gradientXPositions = [0, 0.5, 1]
+        set1.verticalHighlightIndicatorStopAtPoint = true
         
         let gradientColors = [ChartColorTemplates.colorFromString("#00ff0000").cgColor,
                               ChartColorTemplates.colorFromString("#ffff0000").cgColor]

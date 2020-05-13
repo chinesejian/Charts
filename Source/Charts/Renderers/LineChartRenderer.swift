@@ -745,6 +745,32 @@ open class LineChartRenderer: LineRadarRenderer
         
         context.restoreGState()
     }
+    
+    open override func drawHighlightLines(context: CGContext, point: CGPoint, set: ILineScatterCandleRadarChartDataSet) {
+        if let dataSet = set as? ILineChartDataSet, dataSet.horizontalHighlightIndicatorStopAtPoint || dataSet.verticalHighlightIndicatorStopAtPoint {
+            // draw vertical highlight lines
+            if set.isVerticalHighlightIndicatorEnabled
+            {
+                let topY = dataSet.verticalHighlightIndicatorStopAtPoint ? point.y : viewPortHandler.contentTop
+                context.beginPath()
+                context.move(to: CGPoint(x: point.x, y: topY))
+                context.addLine(to: CGPoint(x: point.x, y: viewPortHandler.contentBottom))
+                context.strokePath()
+            }
+            
+            // draw horizontal highlight lines
+            if set.isHorizontalHighlightIndicatorEnabled
+            {
+                let leftX = dataSet.horizontalHighlightIndicatorStopAtPoint ? point.x : viewPortHandler.contentRight
+                context.beginPath()
+                context.move(to: CGPoint(x: viewPortHandler.contentLeft, y: point.y))
+                context.addLine(to: CGPoint(x: leftX, y: point.y))
+                context.strokePath()
+            }
+        } else {
+            super.drawHighlightLines(context: context, point: point, set: set)
+        }
+    }
 
     /// Creates a nested array of empty subarrays each of which will be populated with NSUIAccessibilityElements.
     /// This is marked internal to support HorizontalBarChartRenderer as well.
